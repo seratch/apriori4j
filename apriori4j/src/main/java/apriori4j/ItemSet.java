@@ -3,6 +3,7 @@ package apriori4j;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
 
 public class ItemSet extends HashSet<String> {
 
@@ -51,6 +52,21 @@ public class ItemSet extends HashSet<String> {
     @Override
     public int hashCode() {
         return this.toString().hashCode();
+    }
+
+    public Set<ItemSet> split(int maxLength) {
+        Set<ItemSet> itemSets = new HashSet<ItemSet>();
+        ItemSet currentItemSet = new ItemSet();
+        for (String item : this) {
+            if (currentItemSet.size() >= maxLength) {
+                itemSets.add(currentItemSet);
+                currentItemSet = new ItemSet();
+                currentItemSet.add(item);
+            } else {
+                currentItemSet.add(item);
+            }
+        }
+        return itemSets;
     }
 
 }

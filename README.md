@@ -12,14 +12,14 @@
 <dependency>
   <groupId>com.github.seratch</groupId>
   <artifactId>apriori4j</artifactId>
-  <version>0.2</version>
+  <version>0.3</version>
 </dependency>
 ```
 
 #### Gradle
 
 ```
-compile 'com.github.seratch:apriori4j:0.2'
+compile 'com.github.seratch:apriori4j:0.3'
 ```
 
 #### Example
@@ -48,7 +48,7 @@ Scala interface is also available for the following Scala binary versions.
 #### sbt
 
 ```scala
-libraryDependencies += "com.github.seratch" %% "apriori4s" % "0.2"
+libraryDependencies += "com.github.seratch" %% "apriori4s" % "0.3"
 ```
 
 #### Example
@@ -63,4 +63,6 @@ val result: AnalysisResult = apriori.analyze(transactions)
 
 ## License
 
-the MIT License
+(The MIT License)
+
+Copyright (c) 2014 - 2015 Kazuhiro Sera

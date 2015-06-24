@@ -24,4 +24,12 @@ public class AssociationRule {
         return confidence;
     }
 
+    public String toString() {
+        return "AssociationRule(" +
+                "leftHandSide: " + leftHandSide +
+                ",rightHandSide: " + rightHandSide +
+                ",confidence: " + confidence +
+                ")";
+    }
+
 }

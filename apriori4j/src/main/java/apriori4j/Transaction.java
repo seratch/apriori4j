@@ -14,4 +14,8 @@ public class Transaction {
         return items;
     }
 
+    public String toString() {
+        return items.toString();
+    }
+
 }

@@ -21,4 +21,8 @@ public class AnalysisResult {
         return associationRules;
     }
 
+    public String toString() {
+        return "AnalysisResult(frequentItemSets: " + frequentItemSets + "associationRules: " + associationRules + ")";
+    }
+
 }

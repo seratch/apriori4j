@@ -17,4 +17,9 @@ public class FrequentItemSet {
     public Double getSupport() {
         return support;
     }
+
+    public String toString() {
+        return "FrequentItemSet(itemSet: " + itemSet + ", support: " + support + ")";
+    }
+
 }

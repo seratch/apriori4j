@@ -6,10 +6,21 @@ import scala.collection.JavaConverters._
 
 case class AprioriAlgorithm(
     minSupport: Double = 0.15,
-    minConfidence: Double = 0.6) {
+    minConfidence: Double = 0.6,
+    maxItemSetSize: Int = 5,
+    isQuickRun: Boolean = true,
+    maxJoinedSetsSizeWhenQuickRun: Int = 2000,
+    timeoutMillis: Int = 60000) {
 
   def analyze(transactions: Seq[Transaction]): AnalysisResult = {
-    val javaApriori = new JavaAprioriAlgorithm(minSupport, minConfidence)
+    val javaApriori = {
+      val a = new JavaAprioriAlgorithm(minSupport, minConfidence)
+      a.setMaxItemSetSize(maxItemSetSize)
+      a.setIsQuickRun(isQuickRun)
+      a.setMaxJoinedSetsSizeWhenQuickRun(maxJoinedSetsSizeWhenQuickRun)
+      a.setTimeoutMillis(timeoutMillis)
+      a
+    }
     val javaResult = javaApriori.analyze(transactions.map { t => new JavaTransaction(t.items.asJava) }.asJava)
 
     AnalysisResult(

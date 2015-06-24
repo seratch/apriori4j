@@ -1,5 +1,9 @@
 package apriori4j;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.security.SecureRandom;
 import java.util.*;
 
 /**
@@ -7,28 +11,70 @@ import java.util.*;
  */
 public class AprioriAlgorithm {
 
-    private final Double minSupport;
-    private final Double minConfidence;
+    private static final Logger logger = LoggerFactory.getLogger(AprioriAlgorithm.class);
+
+    private double minSupport = 0.15D;
+    private double minConfidence = 0.80D;
+    private int maxItemSetSize = 5;
+    private boolean isQuickRun = true;
+    private int maxJoinedSetsSizeWhenQuickRun = 1000;
+    private int timeoutMillis = 60000; // 1 minute
 
     public AprioriAlgorithm(Double minSupport, Double minConfidence) {
-        this.minSupport = minSupport;
-        this.minConfidence = minConfidence;
+        setMinSupport(minSupport);
+        setMinConfidence(minConfidence);
     }
 
-    public AnalysisResult analyze(List<Transaction> transactions) {
+    private static long currentExecutionTime(long startedAt) {
+        return System.currentTimeMillis() - startedAt;
+    }
+
+    private void failIfTimeout(long startedAt) throws AprioriTimeoutException {
+        if (currentExecutionTime(startedAt) > getTimeoutMillis()) {
+            throw new AprioriTimeoutException(getTimeoutMillis());
+        }
+    }
+
+    public AnalysisResult analyze(List<Transaction> transactions) throws AprioriTimeoutException {
+        long startedAt = System.currentTimeMillis();
 
         Map<ItemSet, Integer> frequencies = new HashMap<ItemSet, Integer>();
         Map<Integer, Set<FrequentItemSet>> frequentItemSets = new HashMap<Integer, Set<FrequentItemSet>>();
 
         Set<ItemSet> oneElementItemSets = toOneElementItemSets(transactions);
         Set<FrequentItemSet> oneCItemSets = findItemSetsMinSupportSatisfied(oneElementItemSets, transactions, frequencies);
+        failIfTimeout(startedAt);
 
         Integer itemSetSize = 1;
         Set<FrequentItemSet> currentLItemSets = oneCItemSets;
         while (currentLItemSets.size() != 0) {
             frequentItemSets.put(itemSetSize, currentLItemSets);
-            Set<ItemSet> joinedItemSets = toFixedSizeJoinedSets(toItemSets(currentLItemSets), itemSetSize + 1);
+            Set<ItemSet> itemSets = toItemSets(currentLItemSets);
+            Set<ItemSet> joinedItemSets = toFixedSizeJoinedSets(itemSets, itemSetSize + 1);
+            failIfTimeout(startedAt);
+            if (isQuickRun && joinedItemSets.size() >= maxJoinedSetsSizeWhenQuickRun) {
+                final Set<ItemSet> reducedItemSets = new HashSet<ItemSet>();
+                SecureRandom random = new SecureRandom();
+                for (ItemSet itemSet : joinedItemSets) {
+                    if (reducedItemSets.size() >= maxJoinedSetsSizeWhenQuickRun) {
+                        break;
+                    }
+                    if (random.nextInt(2) == 0) {
+                        reducedItemSets.add(itemSet);
+                    }
+                }
+                joinedItemSets = reducedItemSets;
+            }
             currentLItemSets = findItemSetsMinSupportSatisfied(joinedItemSets, transactions, frequencies);
+            failIfTimeout(startedAt);
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("Calculating currentLItemSets " +
+                        "(itemSetSize: " + itemSetSize +
+                        ", joinedItemSets: " + joinedItemSets.size() +
+                        ", currentLItemSets: " + currentLItemSets.size() +
+                        ")");
+            }
             itemSetSize++;
         }
 
@@ -63,14 +109,6 @@ public class AprioriAlgorithm {
             }
         }
         return new AnalysisResult(frequentItemSets, associationRules);
-    }
-
-    public Double getMinSupport() {
-        return minSupport;
-    }
-
-    public Double getMinConfidence() {
-        return minConfidence;
     }
 
     private static Set<ItemSet> toOneElementItemSets(List<Transaction> transactions) {
@@ -127,10 +165,20 @@ public class AprioriAlgorithm {
         return itemSets;
     }
 
-    private static Set<ItemSet> toFixedSizeJoinedSets(Set<ItemSet> itemSets, Integer length) {
+    private Set<ItemSet> toFixedSizeJoinedSets(Set<ItemSet> itemSets, Integer length) {
         Set<ItemSet> resultItemSets = new HashSet<ItemSet>();
-        for (ItemSet itemSetA : itemSets) {
-            for (ItemSet itemSetB : itemSets) {
+        Set<ItemSet> flattenItemSets = new HashSet<ItemSet>();
+        for (ItemSet itemSet : itemSets) {
+            if (itemSet.size() >= maxItemSetSize) {
+                for (ItemSet newItemSet : itemSet.split(maxItemSetSize)) {
+                    flattenItemSets.add(newItemSet);
+                }
+            } else {
+                flattenItemSets.add(itemSet);
+            }
+        }
+        for (ItemSet itemSetA : flattenItemSets) {
+            for (ItemSet itemSetB : flattenItemSets) {
                 if (!itemSetB.containsAll(itemSetA)) {
                     ItemSet mergedItemSet = ItemSet.create(itemSetA);
                     mergedItemSet.addAll(itemSetB);
@@ -143,7 +191,7 @@ public class AprioriAlgorithm {
         return resultItemSets;
     }
 
-    private static Double calculateSupport(
+    private static double calculateSupport(
             ItemSet itemSet,
             Map<ItemSet, Integer> frequencies,
             List<Transaction> transactions) {
@@ -170,6 +218,54 @@ public class AprioriAlgorithm {
             sets.add(newSet);
         }
         return sets;
+    }
+
+    public double getMinSupport() {
+        return minSupport;
+    }
+
+    public void setMinSupport(double minSupport) {
+        this.minSupport = minSupport;
+    }
+
+    public double getMinConfidence() {
+        return minConfidence;
+    }
+
+    public void setMinConfidence(double minConfidence) {
+        this.minConfidence = minConfidence;
+    }
+
+    public int getMaxItemSetSize() {
+        return maxItemSetSize;
+    }
+
+    public void setMaxItemSetSize(int maxItemSetSize) {
+        this.maxItemSetSize = maxItemSetSize;
+    }
+
+    public boolean isQuickRun() {
+        return isQuickRun;
+    }
+
+    public void setIsQuickRun(boolean isQuickRun) {
+        this.isQuickRun = isQuickRun;
+    }
+
+    public int getMaxJoinedSetsSizeWhenQuickRun() {
+        return maxJoinedSetsSizeWhenQuickRun;
+    }
+
+    public void setMaxJoinedSetsSizeWhenQuickRun(int maxJoinedSetsSizeWhenQuickRun) {
+        this.maxJoinedSetsSizeWhenQuickRun = maxJoinedSetsSizeWhenQuickRun;
+    }
+
+    public int getTimeoutMillis() {
+        return timeoutMillis;
+    }
+
+    public void setTimeoutMillis(int timeoutMillis) {
+        this.timeoutMillis = timeoutMillis;
     }
 
 }
