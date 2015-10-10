@@ -1,4 +1,4 @@
-lazy val releaseVersion = "0.3"
+lazy val releaseVersion = "0.4-SNAPSHOT"
 
 lazy val apriori4j = (project in file("apriori4j")).settings(
   name                := "apriori4j",
@@ -18,7 +18,7 @@ lazy val apriori4j = (project in file("apriori4j")).settings(
 lazy val apriori4s = (project in file("apriori4s")).settings(
   name                := "apriori4s",
   scalaVersion        := "2.11.7",
-  crossScalaVersions  := Seq("2.10.5", "2.11.7"),
+  crossScalaVersions  := Seq("2.10.6", "2.11.7"),
   libraryDependencies += "org.scalatest" %% "scalatest" % "2.2.5" % Test,
   logBuffered in Test := false,
   scalacOptions       ++= Seq("-unchecked", "-deprecation", "-feature")
