@@ -1,5 +1,7 @@
 # apriori4j - Apriori Algorithm Implementation in Java
 
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.seratch/apriori4j/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.seratch/apriori4j)
+
 [Apriori Algorithm](http://en.wikipedia.org/wiki/Apriori_algorithm) implementation in Java which is based on https://github.com/asaini/Apriori/blob/master/apriori.py.
 
 ## apriori4j
