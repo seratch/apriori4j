@@ -1,4 +1,4 @@
-lazy val releaseVersion = "0.4-SNAPSHOT"
+lazy val releaseVersion = "0.4"
 
 lazy val apriori4j = (project in file("apriori4j")).settings(
   name                := "apriori4j",
@@ -17,14 +17,13 @@ lazy val apriori4j = (project in file("apriori4j")).settings(
 
 lazy val apriori4s = (project in file("apriori4s")).settings(
   name                := "apriori4s",
-  scalaVersion        := "2.11.7",
-  crossScalaVersions  := Seq("2.10.6", "2.11.7"),
-  libraryDependencies += "org.scalatest" %% "scalatest" % "2.2.5" % Test,
+  scalaVersion        := "2.12.8",
+  crossScalaVersions  := Seq("2.10.7", "2.11.12", "2.12.8"),
+  libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.5" % Test,
   logBuffered in Test := false,
   scalacOptions       ++= Seq("-unchecked", "-deprecation", "-feature")
 ).settings(commonSettings: _*)
  .settings(publishSettings: _*)
- .settings(scalariformSettings: _*)
  .dependsOn(apriori4j)
 
 lazy val commonSettings = Seq(
@@ -32,11 +31,15 @@ lazy val commonSettings = Seq(
   version := releaseVersion,
   javacOptions ++= Seq("-source", "1.7", "-target", "1.7", "-encoding", "UTF-8", "-Xlint:-options", "-Xlint:unchecked"),
   javacOptions in doc := Seq("-source", "1.7"),
-  transitiveClassifiers in Global := Seq(Artifact.SourceClassifier),
-  incOptions := incOptions.value.withNameHashing(true)
+  transitiveClassifiers in Global := Seq(Artifact.SourceClassifier)
 )
 
 lazy val publishSettings = Seq(
+  publishTo := {
+    val nexus = "https://oss.sonatype.org/"
+    if (version.value.trim.endsWith("SNAPSHOT")) Some("snapshots" at nexus + "content/repositories/snapshots")
+    else Some("releases" at nexus + "service/local/staging/deploy/maven2")
+  },
   publishMavenStyle := true,
   publishArtifact in Test := false,
   pomIncludeRepository := { x => false },

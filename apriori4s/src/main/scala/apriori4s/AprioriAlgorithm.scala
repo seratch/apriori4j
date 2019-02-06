@@ -5,12 +5,12 @@ import apriori4j.{ Transaction => JavaTransaction }
 import scala.collection.JavaConverters._
 
 case class AprioriAlgorithm(
-    minSupport: Double = 0.15,
-    minConfidence: Double = 0.6,
-    maxItemSetSize: Int = 5,
-    isQuickRun: Boolean = true,
-    maxJoinedSetsSizeWhenQuickRun: Int = 2000,
-    timeoutMillis: Int = 60000) {
+  minSupport: Double = 0.15,
+  minConfidence: Double = 0.6,
+  maxItemSetSize: Int = 5,
+  isQuickRun: Boolean = true,
+  maxJoinedSetsSizeWhenQuickRun: Int = 2000,
+  timeoutMillis: Int = 60000) {
 
   def analyze(transactions: Seq[Transaction]): AnalysisResult = {
     val javaApriori = {
@@ -38,11 +38,9 @@ case class AprioriAlgorithm(
           new AssociationRule(
             leftHandSide = r.getLeftHandSide.asScala.toSet,
             rightHandSet = r.getRightHandSide.asScala.toSet,
-            confidence = r.getConfidence
-          )
+            confidence = r.getConfidence)
         }.toSet
-      }
-    )
+      })
   }
 
 }
