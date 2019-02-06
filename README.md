@@ -14,14 +14,14 @@
 <dependency>
   <groupId>com.github.seratch</groupId>
   <artifactId>apriori4j</artifactId>
-  <version>0.3</version>
+  <version>0.4</version>
 </dependency>
 ```
 
 #### Gradle
 
 ```
-compile 'com.github.seratch:apriori4j:0.3'
+compile 'com.github.seratch:apriori4j:0.4'
 ```
 
 #### Example
@@ -44,13 +44,14 @@ Scala interface is also available for the following Scala binary versions.
 
 - Scala 2.10
 - Scala 2.11
+- Scala 2.12
 
 ### How to use
 
 #### sbt
 
 ```scala
-libraryDependencies += "com.github.seratch" %% "apriori4s" % "0.3"
+libraryDependencies += "com.github.seratch" %% "apriori4s" % "0.4"
 ```
 
 #### Example
