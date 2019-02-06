@@ -1,4 +1,4 @@
-lazy val releaseVersion = "0.4"
+lazy val releaseVersion = "0.5-SNAPSHOT"
 
 lazy val apriori4j = (project in file("apriori4j")).settings(
   name                := "apriori4j",
